@@ -6,18 +6,22 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:movielog/movie_log_app.dart';
+import 'package:movielog/start_screen.dart';
+import 'package:movielog/theme/app_theme.dart';
 
 void main() {
   testWidgets('StartScreen shows title and start button', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MovieLogApp());
+    await tester.pumpWidget(
+      MaterialApp(theme: AppTheme.light, home: const StartScreen()),
+    );
 
     expect(find.text('영화의 순간을\n기록하세요'), findsOneWidget);
     expect(find.text('시작하기'), findsOneWidget);
-    expect(find.byIcon(Icons.movie_outlined), findsOneWidget);
+    expect(find.byType(SvgPicture), findsOneWidget);
   });
 }
