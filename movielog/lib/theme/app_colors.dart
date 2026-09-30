@@ -15,6 +15,13 @@ abstract final class AppColors {
   static const Color lightViolet = Color(0xFFE9DDFF);
   static const Color darkGray = Color(0xFF494551);
 
+  // Figma W2 회원가입 화면 색상
+  static const Color inputFill = Color(0xFFF4F3F0);
+  static const Color outline = Color(0xFFCAC4D0);
+  static const Color error = Color(0xFFB3261E);
+  static const Color errorContainer = Color(0xFFFFDAD6);
+  static const Color disabledButton = Color(0xFFCCC2DC);
+
   static const Color violet = primary;
   static const Color warmWhite = surface;
 }
