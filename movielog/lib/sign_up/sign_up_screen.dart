@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
 import '../common_app_bar.dart';
 import '../movielog_text_form_field.dart';
+import '../router/app_router.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import 'login_prompt.dart';
@@ -56,7 +58,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
     if (!isValid) return;
 
     FocusScope.of(context).unfocus();
-    debugPrint('가입하기 버튼을 눌렀습니다: ${_nicknameController.text.trim()}');
+    // 가입 완료 후에는 회원가입 화면으로 돌아갈 수 없도록 go()로 이동합니다.
+    // Router.neglect는 웹 브라우저 방문 기록도 남기지 않습니다.
+    Router.neglect(context, () => context.go(AppRouter.home));
   }
 
   @override
@@ -69,11 +73,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
           // 넓은 화면 Figma에는 AppBar가 없고 제목이 본문에 있습니다.
           appBar: isWide
               ? null
-              : CommonAppBar(
-                  title: '회원가입',
-                  centerTitle: true,
-                  onBack: () => Navigator.maybePop(context),
-                ),
+              // 회원가입 화면에서는 뒤로 가기를 막으므로 뒤로 가기 버튼을 두지 않습니다.
+              : const CommonAppBar(title: '회원가입', centerTitle: true),
           body: SafeArea(
             child: LayoutBuilder(
               builder: (context, bodyConstraints) {

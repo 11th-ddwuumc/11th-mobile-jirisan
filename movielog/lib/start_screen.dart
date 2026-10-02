@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
+import 'router/app_router.dart';
 import 'theme/app_colors.dart';
 import 'theme/app_spacing.dart';
 
@@ -78,9 +80,12 @@ class StartScreen extends StatelessWidget {
                         width: double.infinity,
                         height: AppSpacing.unit * 7, // 56
                         child: ElevatedButton(
-                          onPressed: () {
-                            debugPrint('시작하기 버튼을 눌렀습니다.');
-                          },
+                          // go()로 위치 자체를 바꿔 회원가입 화면에서 뒤로 갈 수 없게 합니다.
+                          // Router.neglect는 웹 브라우저 방문 기록도 남기지 않습니다.
+                          onPressed: () => Router.neglect(
+                            context,
+                            () => context.go(AppRouter.register),
+                          ),
                           child: const Text(
                             '시작하기',
                             style: TextStyle(fontSize: 16),
