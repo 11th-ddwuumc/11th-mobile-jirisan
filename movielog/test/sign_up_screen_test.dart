@@ -55,11 +55,8 @@ void main() {
 
     await tester.tap(find.byType(Checkbox));
     await tester.pump();
+    // 가입하기를 눌러 홈으로 이동하는 흐름은 app_flow_test.dart에서 확인합니다.
     expect(signUpButton(tester).onPressed, isNotNull);
-
-    await tester.tap(find.text('가입하기'));
-    await tester.pump();
-    expect(tester.takeException(), isNull);
   });
 
   testWidgets('키보드가 열려도 Overflow가 발생하지 않는다', (tester) async {
