@@ -57,6 +57,29 @@ abstract final class AppTheme {
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(shape: _shape),
     ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+      indicatorColor: AppColors.lightViolet,
+      labelTextStyle: WidgetStateProperty.resolveWith(
+        (states) => AppTextStyles.bodySmall.copyWith(
+          color: states.contains(WidgetState.selected)
+              ? AppColors.deepViolet
+              : AppColors.darkGray,
+          fontWeight: states.contains(WidgetState.selected)
+              ? FontWeight.w700
+              : FontWeight.w500,
+        ),
+      ),
+      iconTheme: WidgetStateProperty.resolveWith(
+        (states) => IconThemeData(
+          color: states.contains(WidgetState.selected)
+              ? AppColors.deepViolet
+              : AppColors.darkGray,
+        ),
+      ),
+    ),
+    snackBarTheme: const SnackBarThemeData(behavior: SnackBarBehavior.floating),
     inputDecorationTheme: InputDecorationTheme(
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(AppRadius.base),

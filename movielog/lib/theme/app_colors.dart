@@ -22,6 +22,12 @@ abstract final class AppColors {
   static const Color errorContainer = Color(0xFFFFDAD6);
   static const Color disabledButton = Color(0xFFCCC2DC);
 
+  // Figma W3 영화 화면 색상
+  static const Color violetContainer = Color(0xFFF7F2FA);
+  static const Color tagFill = Color(0xFFE8E6E1);
+  static const Color divider = Color(0xFFD9D6D0);
+  static const Color scrim = Color(0xB3000000);
+
   static const Color violet = primary;
   static const Color warmWhite = surface;
 }
