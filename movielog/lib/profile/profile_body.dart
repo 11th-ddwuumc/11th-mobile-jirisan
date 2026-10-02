@@ -22,11 +22,11 @@ class ProfileBody extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           ProfileHeader(),
-          SizedBox(height: AppSpacing.lg),
+          SizedBox(height: AppSpacing.md),
+          Center(child: EditProfileButton()),
+          SizedBox(height: AppSpacing.md),
           ProfileStats(),
           FavoriteGenres(),
-          SizedBox(height: AppSpacing.lg),
-          Center(child: EditProfileButton()),
         ],
       ),
     );

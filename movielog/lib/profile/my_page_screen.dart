@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../common_app_bar.dart';
 import 'profile_body.dart';
 
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+class MyPageScreen extends StatelessWidget {
+  const MyPageScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

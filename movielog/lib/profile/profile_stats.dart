@@ -14,15 +14,15 @@ class ProfileStats extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Expanded(
-          child: StatItem(label: '본 영화', value: '24'),
+          child: StatItem(label: '본 영화', value: '342'),
         ),
         SizedBox(width: AppSpacing.xs),
         Expanded(
-          child: StatItem(label: '평점', value: '18'),
+          child: StatItem(label: '평점', value: '4.2'),
         ),
         SizedBox(width: AppSpacing.xs),
         Expanded(
-          child: StatItem(label: '즐겨찾기', value: '7'),
+          child: StatItem(label: '즐겨찾기', value: '58'),
         ),
       ],
     );
@@ -43,15 +43,23 @@ class StatItem extends StatelessWidget {
         vertical: AppSpacing.sm,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border.all(color: AppColors.primary),
-        borderRadius: BorderRadius.circular(AppRadius.base),
+        color: AppColors.violetContainer,
+        border: Border.all(color: AppColors.lightViolet),
+        borderRadius: BorderRadius.circular(AppRadius.base * 2),
       ),
       child: Column(
         children: [
-          Text(value, style: AppTextStyles.titleLarge),
+          Text(
+            label,
+            style: AppTextStyles.bodySmall.copyWith(color: AppColors.darkGray),
+          ),
           const SizedBox(height: AppSpacing.xs),
-          Text(label),
+          Text(
+            value,
+            style: AppTextStyles.titleLarge.copyWith(
+              color: AppColors.deepViolet,
+            ),
+          ),
         ],
       ),
     );

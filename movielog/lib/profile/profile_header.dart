@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
@@ -32,33 +31,18 @@ class ProfileHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.sm),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Flexible(
-              child: Text(
-                '무비러버',
-                style: AppTextStyles.titleLarge,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(width: AppSpacing.xs),
-            SvgPicture.asset(
-              'assets/icons/movie.svg',
-              width: AppSpacing.md,
-              height: AppSpacing.md,
-              semanticsLabel: '영화 아이콘',
-            ),
-          ],
+        const Text(
+          '무비러버',
+          style: AppTextStyles.titleLarge,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
-          '좋아하는 영화를 기록하고 있어요',
+          '매주 주말엔 영화관으로 출근하는 프로 관람객. 좋은 영화를 보고 기록하는 것을 좋아합니다.',
           style: AppTextStyles.bodyMedium.copyWith(color: AppColors.darkGray),
           textAlign: TextAlign.center,
-          maxLines: 2,
+          maxLines: 3,
           overflow: TextOverflow.ellipsis,
         ),
       ],
