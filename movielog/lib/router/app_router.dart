@@ -19,15 +19,6 @@ class AppRouter {
 
   static String movieDetail(int movieId) => '$movieList/$movieId';
 
-  // 선택한 장르를 Query Parameter로 표현합니다. 예) /movies?genre=SF&genre=드라마
-  static String movieListWithGenres(Iterable<String> genres) {
-    if (genres.isEmpty) return movieList;
-    return Uri(
-      path: movieList,
-      queryParameters: {'genre': genres.toList()},
-    ).toString();
-  }
-
   static final router = GoRouter(
     initialLocation: start,
     routes: [
@@ -54,10 +45,7 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: movieList,
-                builder: (context, state) => MovieListScreen(
-                  selectedGenres:
-                      state.uri.queryParametersAll['genre']?.toSet() ?? {},
-                ),
+                builder: (context, state) => const MovieListScreen(),
                 routes: [
                   GoRoute(
                     path: ':movieId',

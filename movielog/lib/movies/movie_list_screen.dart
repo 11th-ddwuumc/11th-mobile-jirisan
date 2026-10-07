@@ -1,103 +1,161 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 import '../common_app_bar.dart';
+import '../data/genre_preference.dart';
 import '../data/movie.dart';
-import '../router/app_router.dart';
-import '../theme/app_colors.dart';
+import '../data/movie_service.dart';
 import '../theme/app_spacing.dart';
-import '../theme/app_text_styles.dart';
-import 'genre_filter_sheet.dart';
-import 'movie_card.dart';
+import 'genre_chip_bar.dart';
+import 'movie_grid.dart';
+import 'states/movie_list_empty.dart';
+import 'states/movie_list_error.dart';
+import 'states/movie_list_loading.dart';
 
-class MovieListScreen extends StatelessWidget {
-  const MovieListScreen({super.key, required this.selectedGenres});
+class MovieListScreen extends StatefulWidget {
+  const MovieListScreen({
+    super.key,
+    this.movieService = const FakeMovieService(),
+    this.genrePreference,
+  });
 
-  // URL의 Query Parameter(genre)에서 읽은 장르. 비어 있으면 전체 영화를 보여줍니다.
-  final Set<String> selectedGenres;
+  final FakeMovieService movieService;
+  final GenrePreference? genrePreference;
 
-  List<Movie> get _filteredMovies {
-    if (selectedGenres.isEmpty) return movies;
-    return movies
-        .where((movie) => selectedGenres.contains(movie.genre))
-        .toList();
+  @override
+  State<MovieListScreen> createState() => _MovieListScreenState();
+}
+
+class _MovieListScreenState extends State<MovieListScreen> {
+  static final _genreChips = [GenrePreference.allGenres, ...genres];
+
+  late final GenrePreference _genrePreference =
+      widget.genrePreference ?? GenrePreference();
+
+  // build가 다시 실행돼도 요청이 반복되지 않도록 Future를 필드에 보관합니다.
+  late Future<List<Movie>> _moviesFuture;
+  String _selectedGenre = GenrePreference.allGenres;
+
+  // 당겨서 새로고침 중에는 Loading 화면 대신 기존 목록을 유지합니다.
+  bool _isRefreshing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _moviesFuture = widget.movieService.fetchMovies();
+    _restoreSelectedGenre();
   }
 
-  Future<void> _openGenreFilter(BuildContext context) async {
-    final result = await showModalBottomSheet<Set<String>>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      showDragHandle: true,
-      // NavigationBar까지 덮도록 최상위 Navigator에 띄웁니다.
-      useRootNavigator: true,
-      builder: (sheetContext) {
-        return GenreFilterSheet(initialGenres: selectedGenres);
-      },
-    );
+  Future<void> _restoreSelectedGenre() async {
+    final genre = await _genrePreference.read();
 
-    // 확인 버튼을 누르지 않고 닫았다면 기존 필터를 유지합니다.
-    if (result == null || !context.mounted) return;
-    context.go(AppRouter.movieListWithGenres(result));
+    // await 사이에 화면이 사라졌다면 setState를 호출하지 않습니다.
+    if (!mounted) return;
+    setState(() => _selectedGenre = genre);
+  }
+
+  Future<void> _selectGenre(String genre) async {
+    if (genre == _selectedGenre) return;
+    setState(() => _selectedGenre = genre);
+    await _genrePreference.save(genre);
+  }
+
+  // 재시도나 상태 전환처럼 작업을 다시 시작해야 할 때만 새로운 Future를 만듭니다.
+  void _load([MovieLoadMode mode = MovieLoadMode.success]) {
+    setState(() {
+      _isRefreshing = false;
+      _moviesFuture = widget.movieService.fetchMovies(mode: mode);
+    });
+  }
+
+  Future<void> _refresh() async {
+    final future = widget.movieService.fetchMovies();
+    setState(() {
+      _isRefreshing = true;
+      _moviesFuture = future;
+    });
+
+    try {
+      await future;
+    } on MovieLoadException {
+      // 오류 화면은 FutureBuilder가 표시하므로 여기서는 Indicator만 닫습니다.
+    }
+  }
+
+  List<Movie> _filter(List<Movie> movies) {
+    if (_selectedGenre == GenrePreference.allGenres) return movies;
+    return movies.where((movie) => movie.genre == _selectedGenre).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final filteredMovies = _filteredMovies;
-
     return Scaffold(
       appBar: CommonAppBar(
         title: '영화',
         actions: [
           IconButton(
-            // 3주차에는 검색 버튼 모양만 구현합니다.
+            // 검색은 아직 버튼 모양만 구현합니다.
             onPressed: () {},
             icon: const Icon(Icons.search),
             tooltip: '검색',
           ),
-          IconButton(
-            onPressed: () => _openGenreFilter(context),
-            icon: Badge(
-              isLabelVisible: selectedGenres.isNotEmpty,
-              label: Text('${selectedGenres.length}'),
-              backgroundColor: AppColors.primary,
-              child: const Icon(Icons.filter),
-            ),
-            tooltip: '장르 필터',
+          // 4주차 스터디 인증용: Mock Service의 응답 결과를 바꿔 각 상태를 확인합니다.
+          PopupMenuButton<MovieLoadMode>(
+            icon: const Icon(Icons.science_outlined),
+            tooltip: '상태 테스트',
+            onSelected: _load,
+            itemBuilder: (context) => const [
+              PopupMenuItem(value: MovieLoadMode.success, child: Text('성공')),
+              PopupMenuItem(value: MovieLoadMode.empty, child: Text('빈 목록')),
+              PopupMenuItem(value: MovieLoadMode.failure, child: Text('실패')),
+              PopupMenuItem(value: MovieLoadMode.timeout, child: Text('시간 초과')),
+            ],
           ),
           const SizedBox(width: AppSpacing.xs),
         ],
       ),
       body: SafeArea(
-        child: filteredMovies.isEmpty
-            ? const _EmptyMovies()
-            : GridView.builder(
-                padding: const EdgeInsets.all(AppSpacing.sm),
-                itemCount: filteredMovies.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: AppSpacing.md,
-                  childAspectRatio: 0.55,
-                ),
-                itemBuilder: (context, index) {
-                  return MovieCard(movie: filteredMovies[index]);
+        child: Column(
+          children: [
+            GenreChipBar(
+              genres: _genreChips,
+              selectedGenre: _selectedGenre,
+              onSelected: _selectGenre,
+            ),
+            Expanded(
+              child: FutureBuilder<List<Movie>>(
+                future: _moviesFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting &&
+                      !(_isRefreshing && snapshot.hasData)) {
+                    return const MovieListLoading();
+                  }
+
+                  // 오류를 빈 목록보다 먼저 확인해야 Error가 Empty로 보이지 않습니다.
+                  if (snapshot.hasError) {
+                    return MovieListError(onRetry: _load);
+                  }
+
+                  final movies = _filter(snapshot.data ?? const <Movie>[]);
+
+                  return RefreshIndicator(
+                    onRefresh: _refresh,
+                    child: movies.isEmpty
+                        ? const CustomScrollView(
+                            physics: AlwaysScrollableScrollPhysics(),
+                            slivers: [
+                              SliverFillRemaining(
+                                hasScrollBody: false,
+                                child: MovieListEmpty(),
+                              ),
+                            ],
+                          )
+                        : MovieGrid(movies: movies),
+                  );
                 },
               ),
-      ),
-    );
-  }
-}
-
-class _EmptyMovies extends StatelessWidget {
-  const _EmptyMovies();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        '선택한 장르의 영화가 없습니다.',
-        style: AppTextStyles.bodyMedium.copyWith(color: AppColors.gray),
+            ),
+          ],
+        ),
       ),
     );
   }
