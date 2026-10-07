@@ -28,6 +28,9 @@ abstract final class AppColors {
   static const Color divider = Color(0xFFD9D6D0);
   static const Color scrim = Color(0xB3000000);
 
+  // Figma W4 장르 Chip 색상
+  static const Color chipFill = Color(0xFFE7E0EC);
+
   static const Color violet = primary;
   static const Color warmWhite = surface;
 }
