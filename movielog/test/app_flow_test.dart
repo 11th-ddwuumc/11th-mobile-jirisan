@@ -10,8 +10,16 @@ import 'package:movielog/movies/movie_card.dart';
 import 'package:movielog/movies/movie_list_screen.dart';
 import 'package:movielog/router/app_router.dart';
 import 'package:movielog/sign_up/sign_up_screen.dart';
+import 'package:shared_preferences_platform_interface/in_memory_shared_preferences_async.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_async_platform_interface.dart';
 
 void main() {
+  setUp(() {
+    // 영화 목록이 마지막 선택 장르를 읽으므로 테스트마다 빈 저장소를 사용합니다.
+    SharedPreferencesAsyncPlatform.instance =
+        InMemorySharedPreferencesAsync.empty();
+  });
+
   Future<void> pumpApp(WidgetTester tester, String location) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
@@ -93,38 +101,22 @@ void main() {
     expect(currentPath(), AppRouter.movieList);
   });
 
-  testWidgets('BottomSheet에서 확인을 눌러야 장르 필터가 적용된다', (tester) async {
+  testWidgets('장르 Chip을 누르면 해당 장르 영화만 보인다', (tester) async {
     await pumpApp(tester, AppRouter.movieList);
     final gridCards = find.descendant(
       of: find.byType(GridView),
       matching: find.byType(MovieCard),
     );
-    expect(gridCards, findsNWidgets(6));
+    expect(gridCards, findsAtLeastNWidgets(4));
 
-    await tester.tap(find.byTooltip('장르 필터'));
+    await tester.tap(find.widgetWithText(ChoiceChip, 'SF'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(CheckboxListTile, 'SF'));
-    await tester.tap(find.widgetWithText(CheckboxListTile, '스릴러'));
-    await tester.pump();
-    // 확인 전에는 URL(필터 조건)이 바뀌지 않습니다.
-    expect(currentPath(), AppRouter.movieList);
-
-    await tester.tap(find.text('확인 (2개 장르)'));
-    await tester.pumpAndSettle();
-    expect(currentPath(), '/movies?genre=SF&genre=%EC%8A%A4%EB%A6%B4%EB%9F%AC');
-    expect(gridCards, findsNWidgets(2));
+    expect(gridCards, findsOneWidget);
     expect(find.text('우주의 끝에서'), findsOneWidget);
-    expect(find.text('밤의 그림자'), findsOneWidget);
 
-    // 아무 장르도 선택하지 않고 확인하면 전체 목록으로 돌아갑니다.
-    await tester.tap(find.byTooltip('장르 필터'));
+    await tester.tap(find.widgetWithText(ChoiceChip, '전체'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('선택 해제'));
-    await tester.pump();
-    await tester.tap(find.text('확인 (전체 보기)'));
-    await tester.pumpAndSettle();
-    expect(currentPath(), AppRouter.movieList);
-    expect(gridCards, findsNWidgets(6));
+    expect(gridCards, findsAtLeastNWidgets(4));
   });
 
   testWidgets('즐겨찾기 Snackbar와 평점 Dialog가 동작한다', (tester) async {
